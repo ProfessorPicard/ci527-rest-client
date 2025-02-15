@@ -4,6 +4,9 @@ const search_endpoint = "https://images-api.nasa.gov/search?q={search}&page={pag
 
 const _target = document.querySelector("#searchContent");
 const _status = document.querySelector("#statusContainer");
+const _statusTitle = document.querySelector("#statusTitle");
+const _statusDescription = document.querySelector("#statusDescription");
+
 const _overlay = document.querySelector("#metaDataOverlay");
 const _searchInfoContEle = document.querySelector("#searchInfoContainer");
 const _returnTopEle = document.querySelector("#returnToTop");
@@ -50,7 +53,7 @@ function search_url(url) {
 
 async function getResponse(requestUrl) {
 
-    showStatus("Loading");
+    showStatus("Loading", "Searching for '" + _searchQuery + "'");
     enableSearch(false);
     _target.innerHTML = "";
 
@@ -63,15 +66,38 @@ async function getResponse(requestUrl) {
 
     fetch(requestUrl, options)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            switch (response.status) {
+                case 200:
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        handleError('Response is not JSON')
+                        break;
+                    }
+                case 400:
+                    handleError('400 - Bad request')
+                    break;
+                case 404:
+                    handleError('404 - The requested resource does not exist')
+                    break;
+                case 500:
+                case 502:
+                case 503:
+                case 504:
+                    handleError('500 - Internal server error')
+                    break;
             }
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                return response.json();
-            } else {
-                throw new Error('Response is not JSON');
-            }
+            // if (!response.ok) {
+            //     handleError('Invalid network response')
+            // }
+            // const contentType = response.headers.get('content-type');
+            // if (contentType && contentType.includes('application/json')) {
+            //     return response.json();
+            // } else {
+            //     handleError('Response is not JSON')
+            //     throw new Error('Response is not JSON');
+            // }
         }).then(json => {
             parseJson(json);
         }).catch(console.error);
@@ -87,7 +113,7 @@ function parseJson(json) {
     let prevUrl = "";
 
     if (items.length === 0) {
-        showStatus("No items found, try again");
+        showStatus("Search Error", "No items found for query '" + _searchQuery + "'");
         enableSearch(true);
         return;
     }
@@ -182,6 +208,7 @@ function parseJson(json) {
         else if(origSrc !== "")
             thumbEle.src = origSrc;
 
+        thumbEle.loading = "lazy";
         thumbEle.width = thumbWidth;
         thumbEle.height = thumbHeight;
         thumbEle.alt = "Retrieved image " + (i + 1) + " of " + items.length;
@@ -218,8 +245,6 @@ function parseJson(json) {
     _prevEle.style.visibility = (prevUrl === "") ? "hidden" : "visible";
 
     showTarget();
-    _status.textContent = "Perform a search using the search box above";
-
     enableSearch(true);
 }
 
@@ -231,13 +256,14 @@ function showTarget() {
     _returnTopEle.style.display = "flex";
 }
 
-function showStatus(statusValue) {
-    _status.innerHTML = statusValue;
+function showStatus(statusTitle, statusDescription) {
     _overlay.style.display = "none";
     _target.style.display = "none";
     _status.style.display = "flex";
     _searchInfoContEle.style.display = "none";
     _returnTopEle.style.display = "none";
+    _statusTitle.textContent = statusTitle;
+    _statusDescription.textContent = statusDescription;
 }
 
 function showMetaOverlay() {
@@ -254,7 +280,7 @@ function searchFn() {
     if(searchVal !== "") {
         search_request(searchVal, _pageSize, 1);
     } else {
-        console.log("no input");
+        handleError('No search value entered')
     }
 }
 
@@ -275,6 +301,10 @@ function getUrlParameters(queryString) {
     _currPage = params.get("page");
     _searchQuery = params.get("q");
     _pageSize = params.get("page_size");
+}
+
+function handleError(errorDescription) {
+    showStatus("Error", errorDescription);
 }
 
 _searchTxt.addEventListener("keypress", function(event) {

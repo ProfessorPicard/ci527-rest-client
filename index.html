@@ -1,117 +1,143 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Example rest client for the NASA image and video API">
-    <title>NASA image and video API client - CI527</title>
+    <head>
+        <!-- Setting viewport to device width and scaling. Useful for mobile devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="css/page.css">
-    <link rel="stylesheet" href="css/search.css">
-    <link rel="preload" href="css/meta.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="css/meta.css"></noscript>
+        <!-- Meta page description and page title to describe the website content -->
+        <meta name="description" content="Example rest client for the NASA image and video API">
+        <title>NASA image and video API client - CI527</title>
 
-    <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="icon" href="icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="icon.webp">
-</head>
+        <!-- Pre=loading web fonts to improve speed -->
+        <link rel="preload" href="fonts/LeagueSpartan-Bold.ttf" as="font" type="font/ttf" crossorigin>
+        <link rel="preload" href="fonts/LeagueSpartan-Regular.ttf" as="font" type="font/ttf" crossorigin>
 
-<body>
-<a id="top"></a>
-<div id="pageContainer">
-    <header id="topHeader">
+        <!-- Page and Search stylesheets -->
+        <link rel="stylesheet" href="css/page.css">
+        <link rel="stylesheet" href="css/search.css">
 
-        <div id="logoContainer">
-            <img src="./images/logoSmall.png" width="100" height="100" alt="NASA Api rest client logo">
-            <h1>NASA API REST CLIENT</h1>
-        </div>
+        <!-- Stop render blocking of meta.css to improve load speed, renders when needed -->
+        <link rel="preload" href="css/meta.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="css/meta.css"></noscript>
 
-        <div id="searchFormContainer">
-            <div class="form-container search-container">
-                <label class="label" for="searchTxt">Search Query</label>
-                <input id="searchTxt" class="shadow-highlight form-control" type="text">
-            </div>
-            <div class="form-container select-container">
-                <label class="label" for="pageSize">Page Size</label>
-                <select id="pageSize" class="shadow-highlight form-control" name="pageSize">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100" selected>100</option>
-                </select>
-            </div>
-            <div class="form-container img-container">
-                <img id="submitBtn" class="shadow-highlight" alt="Submit Button" src="images/search.webp" width="64" height="64" onClick="searchFn()">
-            </div>
+        <!-- Favicons -->
+        <link rel="icon" href="favicon.ico" sizes="any">
+        <link rel="icon" href="icon.svg" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="icon.webp">
+    </head>
 
-        </div>
+    <body>
+    <!-- Page anchor for scroll to top button -->
+        <a id="top"></a>
+        <!-- Main page container -->
+        <div id="pageContainer">
+            <!-- Header Container -->
+            <header id="topHeader">
 
-    </header>
-
-    <div id="searchInfoContainer">
-        <div id="searchDetails"></div>
-        <div id="page_nav_container">
-            <img id="prevImg" class="paginationBtn shadow-highlight" width="64" height="64" alt="Previous page button" src="images/prev.webp">
-            <div id="pageInfo"></div>
-            <img id="nextImg" class="paginationBtn shadow-highlight" width="64" height="64" alt="Next page button" src="images/next.webp">
-        </div>
-    </div>
-
-    <div id="statusContainer">
-        Perform a search using the search box above
-    </div>
-
-    <div id="searchContent">
-    </div>
-
-    <div id="returnToTop">
-        <span>Scroll to Top</span>
-        <a href="#top"><img id="returnBtn" class="shadow-highlight" src="images/up.webp" alt="Scroll to top button" width="64" height="64"></a>
-    </div>
-
-    <div id="metaDataOverlay">
-        <div id="topContainer">
-            <img id="metaClose" class="shadow-highlight" src="images/prev.webp" alt="Close picture metadata" width="64" height="64">
-            <div id="metaTitle"></div>
-        </div>
-
-        <div id="mainContainer">
-
-            <div id="metaImgCont">
-            </div>
-
-            <div id="metaDetails">
-                <div id="metaDescription">
-                    <div class="descriptionHeader">Description</div>
-                    <div id="metaDescriptionContent"></div>
+                <!-- Logo container, shows text and small logo when in mobile mode and large logo when in desktop mode -->
+                <div id="logoContainer">
+                    <img src="./images/logoSmall.webp" width="100" height="100" alt="NASA Api rest client logo">
+                    <h1>NASA API REST CLIENT</h1>
                 </div>
-                <div id="metaOthers">
-                    <div class="metaOtherRow">
-                        <div class="metaOtherHeader">Center:</div>
-                        <div id="metaCenter" class="metaOtherItem"></div>
+
+                <!-- Contains the search box, page size selector and the search button -->
+                <div id="searchFormContainer">
+                    <div class="form-container search-container">
+                        <label class="label" for="searchTxt">Search Query</label>
+                        <input id="searchTxt" class="shadow-highlight form-control" type="text">
                     </div>
-                    <div class="metaOtherRow">
-                        <div class="metaOtherHeader">Date Created:</div>
-                        <div id="metaDate" class="metaOtherItem"></div>
+                    <div class="form-container select-container">
+                        <label class="label" for="pageSize">Page Size</label>
+                        <select id="pageSize" class="shadow-highlight form-control" name="pageSize">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100" selected>100</option>
+                        </select>
                     </div>
-                    <div class="metaOtherRow">
-                        <div class="metaOtherHeader">Keywords:</div>
-                        <div id="metaKeywords" class="metaOtherItem"></div>
+                    <div class="form-container img-container">
+                        <img id="submitBtn" class="shadow-highlight" alt="Submit Button" src="images/search.webp" width="64" height="64" onClick="searchFn()">
                     </div>
-                    <div class="metaOtherRow">
-                        <div class="metaOtherHeader">Media Type:</div>
-                        <div id="metaType" class="metaOtherItem"></div>
-                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- Contains the details of the search performed as well as the pagination buttons and page info -->
+            <div id="searchInfoContainer">
+                <div id="searchDetails"></div>
+                <div id="page_nav_container">
+                    <img id="prevImg" class="paginationBtn shadow-highlight" width="64" height="64" alt="Previous page button" src="images/prev.webp">
+                    <div id="pageInfo"></div>
+                    <img id="nextImg" class="paginationBtn shadow-highlight" width="64" height="64" alt="Next page button" src="images/next.webp">
                 </div>
             </div>
+
+            <!-- Contains the status overlay which handles errors and user feedback. contains the title and description -->
+            <div id="statusContainer">
+                <div id="statusTitle">
+                    Tip
+                </div>
+
+
+                <div id="statusDescription">
+                    Please use the search area to perform a search. Results will be displayed here.
+                </div>
+            </div>
+
+            <!-- Contains all the search results for the search -->
+            <div id="searchContent">
+            </div>
+
+            <!-- Contains the return to top button -->
+            <div id="returnToTop">
+                <span>Scroll to Top</span>
+                <a href="#top"><img id="returnBtn" class="shadow-highlight" src="images/up.webp" alt="Scroll to top button" width="64" height="64"></a>
+            </div>
+
+            <!-- Contains all the metadata for the selected image and displays it accordingly -->
+            <div id="metaDataOverlay">
+                <div id="topContainer">
+                    <img id="metaClose" class="shadow-highlight" src="images/prev.webp" alt="Close picture metadata" width="64" height="64">
+                    <div id="metaTitle"></div>
+                </div>
+
+                <div id="mainContainer">
+
+                    <div id="metaImgCont">
+                    </div>
+
+                    <div id="metaDetails">
+                        <div id="metaDescription">
+                            <div class="descriptionHeader">Description</div>
+                            <div id="metaDescriptionContent"></div>
+                        </div>
+                        <div id="metaOthers">
+                            <div class="metaOtherRow">
+                                <div class="metaOtherHeader">Center:</div>
+                                <div id="metaCenter" class="metaOtherItem"></div>
+                            </div>
+                            <div class="metaOtherRow">
+                                <div class="metaOtherHeader">Date Created:</div>
+                                <div id="metaDate" class="metaOtherItem"></div>
+                            </div>
+                            <div class="metaOtherRow">
+                                <div class="metaOtherHeader">Keywords:</div>
+                                <div id="metaKeywords" class="metaOtherItem"></div>
+                            </div>
+                            <div class="metaOtherRow">
+                                <div class="metaOtherHeader">Media Type:</div>
+                                <div id="metaType" class="metaOtherItem"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
-
-    <footer id="pageFooter">Copyright Peter Blackburn 2025</footer>
-
-</div>
 
 
-
-<script src="scripts/rest_client.js"></script>
-</body>
+        <!-- Load the javascript after all page elements are loaded -->
+        <script src="scripts/rest_client.js"></script>
+    </body>
 </html>

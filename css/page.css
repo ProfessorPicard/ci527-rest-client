@@ -22,12 +22,6 @@
 }
 
 @font-face {
-	font-family: bodyFontMobile;
-	src: url(../fonts/LeagueSpartan-Regular.ttf);
-	font-display: swap;
-}
-
-@font-face {
 	font-family: headerFont;
 	src: url(../fonts/LeagueSpartan-Bold.ttf);
 	font-display: swap;
@@ -42,7 +36,7 @@ body, html {
 	height: 100%;
 	background-color: #111;
 	font-size: var(--bodyTextSize);
-	font-family: bodyFontMobile, sans-serif;
+	font-family: bodyFont, sans-serif;
 }
 
 h1, h2, h3, h4 {
@@ -93,7 +87,7 @@ h2 { font-size: 20px; }
 	height: 100%;
 	width: auto;
 	margin-right: 2em;
-	content: url("../images/logoSmall.png");
+	content: url("../images/logoSmall.webp");
 	object-fit: contain;
 }
 
@@ -122,33 +116,38 @@ h2 { font-size: 20px; }
 
 #statusContainer {
 	flex: 1 1 auto;
-	width: 100%;
+	width: 96%;
+	padding: 2%;
 	background-color: var(--primaryColor);
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
 	text-align: center;
 	color: var(--primaryFontColor);
-	font-size: 3em;
+}
+
+#statusTitle {
+	color: var(--primaryFontColor);
+	font-size: 2em;
+	font-family: headerFont, sans-serif;
+	flex: none;
+	height: auto;
+	width: 100%;
+}
+
+#statusDescription {
+	color: var(--primaryFontColor);
+	font-size: 1.75em;
+	font-family: bodyFont, sans-serif;
+	height: auto;
+	flex: auto;
+	width: 100%;
+	align-content: center;
 }
 
 #overlayContent {
 	margin: auto auto;
 	width: 80%;
 	height: 80%;
-}
-
-#pageFooter {
-	width: 100%;
-	height: 100px;
-	background-color: var(--secondary-color);
-	flex: none;
-	text-align: center;
-	font-size: var(--bodyTextSize);
-	line-height: var(--bodyLineHeight);
-	font-family: bodyFontMobile, sans-serif;
-	color: var(--primaryFontColor);
-	align-content: center;
 }
 
 #returnToTop {
@@ -204,10 +203,10 @@ h2 { font-size: 20px; }
 	height: 40px;
 	padding: 0 1%;
 	width: 98%;
-	font-size: 20px;
+	font-size: 1em;
 	background-color: var(--primaryColor);
 	color: var(--primaryFontColor);
-	font-family: bodyFontMobile, sans-serif;
+	font-family: bodyFont, sans-serif;
 	border: none;
 	outline: var(--primaryFontColor);
 }
@@ -234,8 +233,8 @@ h2 { font-size: 20px; }
 	line-height: 40px;
 	align-content: center;
 	width: 100%;
-	font-size: 18px;
-	font-family: bodyFontMobile, sans-serif;
+	font-size: 1em;
+	font-family: bodyFont, sans-serif;
 	color: var(--primaryFontColor);
 	text-shadow: 3px 3px #111;
 }
@@ -264,7 +263,7 @@ h2 { font-size: 20px; }
 	#logoContainer img {
 		height: 150px;
 		width: 300px;
-		content: url("../images/logo.png");
+		content: url("../images/logo.webp");
 		object-fit: contain;
 	}
 

@@ -108,7 +108,6 @@
 		padding-left: 1em;
 		text-align: left;
 		align-content: center;
-		font-size: var(--bodyTextSizeLarge);
 		line-height: var(--bodyLineHeight);
 	}
 
@@ -128,6 +127,7 @@
 		padding: .5em 1%;
 	}
 
+	.searchResult { cursor: pointer; }
 	.searchResult:hover { box-shadow: 0 0 0 5px var(--secondary-color);	}
 	.searchResult:hover .resultTitle { visibility: visible;	}
 	.searchResult img {
