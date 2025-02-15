@@ -79,11 +79,22 @@ h2 { font-size: 20px; }
 }
 
 #logoContainer {
-	height: auto;
+	display: flex;
+	flex-direction: row;
+	height: 60px;
+	padding: 10px 0;
 	width: 88%;
 	text-align: left;
 	align-content: center;
 	text-shadow: 3px 3px #111;
+}
+
+#logoContainer img {
+	height: 100%;
+	width: auto;
+	margin-right: 2em;
+	content: url("../images/logoSmall.png");
+	object-fit: contain;
 }
 
 #searchFormContainer {
@@ -248,6 +259,17 @@ h2 { font-size: 20px; }
 		width: 300px;
 		margin-left: 2%;
 		flex: none;
+	}
+
+	#logoContainer img {
+		height: 150px;
+		width: 300px;
+		content: url("../images/logo.png");
+		object-fit: contain;
+	}
+
+	#logoContainer h1 {
+		display: none;
 	}
 
 	#searchFormContainer {

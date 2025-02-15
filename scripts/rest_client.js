@@ -55,7 +55,10 @@ async function getResponse(requestUrl) {
     _target.innerHTML = "";
 
     const options = {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+            "Accept-Encoding": "br, gzip"
+        }
     };
 
     fetch(requestUrl, options)
