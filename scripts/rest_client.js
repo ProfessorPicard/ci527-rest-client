@@ -35,6 +35,7 @@ const _metaMediaType = document.querySelector("#metaType");
 let _currPage = -1;
 let _searchQuery = "";
 let _pageSize = -1;
+let _errorCode = 0;
 
 function search_request(query, pageSize, page) {
     let final_url = search_endpoint.replace("{search}", query).replace("{pageSize}", pageSize).replace("{page}", page);
@@ -66,47 +67,51 @@ async function getResponse(requestUrl) {
 
     fetch(requestUrl, options)
         .then(response => {
+            _errorCode = response.status;
             switch (response.status) {
                 case 200:
                     const contentType = response.headers.get('content-type');
                     if (contentType && contentType.includes('application/json')) {
                         return response.json();
                     } else {
-                        handleError('Response is not JSON')
+                        handleError('Error', 'Response is not JSON');
                         break;
                     }
                 case 400:
-                    handleError('400 - Bad request')
-                    break;
+                    return response.json();
                 case 404:
-                    handleError('404 - The requested resource does not exist')
+                    handleError('Error 404', 'The requested resource does not exist');
                     break;
                 case 500:
                 case 502:
                 case 503:
                 case 504:
-                    handleError('500 - Internal server error')
+                    handleError('Error 500', 'Internal server error');
                     break;
             }
-            // if (!response.ok) {
-            //     handleError('Invalid network response')
-            // }
-            // const contentType = response.headers.get('content-type');
-            // if (contentType && contentType.includes('application/json')) {
-            //     return response.json();
-            // } else {
-            //     handleError('Response is not JSON')
-            //     throw new Error('Response is not JSON');
-            // }
+            enableSearch(true);
         }).then(json => {
-            parseJson(json);
+            if(_errorCode === 200)
+                parseJson(json);
+
+            if(_errorCode === 400)
+                displayBadRequestReason(json);
+
         }).catch(console.error);
 }
 
-function parseJson(json) {
+function displayBadRequestReason(json) {
+    if(json.reason != null)
+        handleError('Error 400', json.reason);
+    else
+        handleError('Error 400', 'Bad request');
 
+    enableSearch(true);
+}
+
+function parseJson(json) {
     let collection = json.collection;
-    let results = collection.metadata.total_hits;
+    let results = Math.min(collection.metadata.total_hits, 10000);
     let items = collection.items;
     let links = collection.links;
     let nextUrl = "";
@@ -171,12 +176,23 @@ function parseJson(json) {
         const thumbEle = document.createElement("img");
         const resultCont = document.createElement("div");
         resultCont.className = "searchResult";
+        resultCont.tabIndex = 0;
         resultCont.onclick = function() {
+            updateMeta();
+        }
+        resultCont.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                updateMeta();
+            }
+        });
+
+        function updateMeta() {
             // Launch full details overlay
             showMetaOverlay();
             _metaTitle.innerHTML = "<h2>" + title + "</h2>";
 
-            const metaImgTmp = document.createElement("img");
+            let metaImgTmp = document.createElement("img");
 
             if(mediumSrc !== "")
                 metaImgTmp.src = mediumSrc;
@@ -196,6 +212,7 @@ function parseJson(json) {
             _metaKeywords.textContent = keywords;
             _metaMediaType.textContent = mediaType;
         }
+
         titleEle.textContent = title;
         titleEle.className = "resultTitle";
 
@@ -208,7 +225,8 @@ function parseJson(json) {
         else if(origSrc !== "")
             thumbEle.src = origSrc;
 
-        thumbEle.loading = "lazy";
+        if(i > 10)
+            thumbEle.loading = "lazy";
         thumbEle.width = thumbWidth;
         thumbEle.height = thumbHeight;
         thumbEle.alt = "Retrieved image " + (i + 1) + " of " + items.length;
@@ -238,9 +256,22 @@ function parseJson(json) {
     _nextEle.onclick = function() {
         search_url(nextUrl);
     }
+    _nextEle.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            search_url(nextUrl);
+        }
+    });
     _prevEle.onclick = function() {
         search_url(prevUrl);
     }
+    _prevEle.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            search_url(prevUrl);
+        }
+    });
+
     _nextEle.style.visibility = (nextUrl === "") ? "hidden" : "visible";
     _prevEle.style.visibility = (prevUrl === "") ? "hidden" : "visible";
 
@@ -280,7 +311,7 @@ function searchFn() {
     if(searchVal !== "") {
         search_request(searchVal, _pageSize, 1);
     } else {
-        handleError('No search value entered')
+        handleError('Search Error', 'No search value entered')
     }
 }
 
@@ -303,8 +334,8 @@ function getUrlParameters(queryString) {
     _pageSize = params.get("page_size");
 }
 
-function handleError(errorDescription) {
-    showStatus("Error", errorDescription);
+function handleError(errorTitle, errorDescription) {
+    showStatus(errorTitle, errorDescription);
 }
 
 _searchTxt.addEventListener("keypress", function(event) {
@@ -314,9 +345,15 @@ _searchTxt.addEventListener("keypress", function(event) {
     }
 });
 
-
+_submitBtn.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        searchFn();
+    }
+});
 
 window.onload=function() {
+
     getUrlParameters(window.location.search);
     if(_searchQuery != null) {
         if(_pageSize == null)

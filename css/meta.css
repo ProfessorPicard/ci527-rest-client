@@ -8,7 +8,6 @@
     display: none;
     flex-direction: column;
     background-color: var(--primaryColor);
-    padding-bottom: 5%;
     align-items: center;
 }
 
@@ -87,23 +86,25 @@
 }
 
 #metaDescription {
-    width: 80%;
-    padding: 5%;
+    width: 90%;
+    padding: 20px 5% 0 5%;
     flex: 1 1 auto;
-    background-color: var(--secondary-color);
-    overflow: auto;
+    background-color: var(--primaryColor);
     display: flex;
     flex-direction: column;
 }
 
-.descriptionHeader {
+.descriptionHeader, .metaDataHeader {
     flex: 0 0 60px;
     font-size: 1.2em;
     height: 60px;
-    width: 100%;
+    width: 96%;
+    padding: 0 2%;
     align-content: center;
     color: var(--primaryFontColor);
+    background-color: var(--secondary-color);
     font-weight: bold;
+    margin-bottom: 20px;
 }
 
 #metaDescriptionContent {
@@ -114,10 +115,10 @@
 }
 
 #metaOthers {
-    width: 80%;
+    width: 90%;
     flex: 1 1 auto;
-    padding: 5%;
-    background-color: var(--secondary-color);
+    padding: 0 5%;
+    background-color: var(--primaryColor);
     display: flex;
     flex-direction: column;
 }
@@ -170,7 +171,7 @@
 
     #metaDetails {
         flex: none;
-        height: 90%;
+        height: 100%;
         width: 60%;
     }
 }

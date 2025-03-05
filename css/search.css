@@ -134,5 +134,8 @@
 		width: 200px;
 		height: 200px;
 	}
+	.searchResult:focus .resultTitle {
+		visibility: visible;
+	}
 }
 /* End Large Screen Media Queries */
