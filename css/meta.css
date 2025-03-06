@@ -66,6 +66,7 @@
     justify-content: center;
     align-items: center;
     display: flex;
+    padding-top: 20px;
 }
 
 .metaImg {
@@ -87,17 +88,18 @@
 
 #metaDescription {
     width: 90%;
-    padding: 20px 5% 0 5%;
-    flex: 1 1 auto;
+    height: auto;
+    padding: 20px 5%;
+    flex: none;
     background-color: var(--primaryColor);
     display: flex;
     flex-direction: column;
 }
 
 .descriptionHeader, .metaDataHeader {
-    flex: 0 0 60px;
+    flex: 0 0 40px;
     font-size: 1.2em;
-    height: 60px;
+    height: 40px;
     width: 96%;
     padding: 0 2%;
     align-content: center;
@@ -105,6 +107,7 @@
     background-color: var(--secondary-color);
     font-weight: bold;
     margin-bottom: 20px;
+    text-shadow: 3px 3px #111;
 }
 
 #metaDescriptionContent {
@@ -116,8 +119,9 @@
 
 #metaOthers {
     width: 90%;
-    flex: 1 1 auto;
+    height: auto;
     padding: 0 5%;
+    flex: none;
     background-color: var(--primaryColor);
     display: flex;
     flex-direction: column;
@@ -156,6 +160,10 @@
 @media only screen and (min-width: 768px) {
     #mainContainer {
         flex-direction: row;
+    }
+
+    #metaImgCont {
+        padding-top: 0;
     }
 
     #topContainer {
