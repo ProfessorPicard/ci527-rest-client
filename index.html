@@ -20,6 +20,9 @@
         <link rel="preload" href="css/meta.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="css/meta.css"></noscript>
 
+        <!-- Load the javascript and defer execution -->
+        <script src="scripts/rest_client.js" defer></script>
+
         <!-- Favicons -->
         <link rel="icon" href="favicon.ico" sizes="any">
         <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -41,7 +44,7 @@
                 </div>
 
                 <!-- Contains the search box, page size selector and the search button -->
-                <div id="searchFormContainer">
+                <form id="searchFormContainer">
                     <div class="form-container search-container">
                         <label class="label" for="searchTxt">Search Query</label>
                         <input id="searchTxt" class="shadow-highlight form-control" type="text" tabindex="0">
@@ -55,11 +58,11 @@
                             <option value="100" selected>100</option>
                         </select>
                     </div>
-                    <div class="form-container img-container">
-                        <img id="submitBtn" class="shadow-highlight" alt="Submit Button" src="images/search.webp" width="64" height="64" tabindex="0" onclick="searchFn();">
+                    <div class="form-container">
+                        <button id="submitBtn" class="shadow-highlight" tabindex="0" aria-label="Submit"></button>
                     </div>
 
-                </div>
+                </form>
 
             </header>
 
@@ -83,6 +86,8 @@
                 <div id="statusDescription">
                     Please use the search area to perform a search. Results will be displayed here.
                 </div>
+
+                <img id="loadingImg" src="images/loading.gif" alt="Rocket loading icon">
             </div>
 
             <!-- Contains all the search results for the search -->
@@ -137,8 +142,5 @@
 
         </div>
 
-
-        <!-- Load the javascript after all page elements are loaded -->
-        <script src="scripts/rest_client.js"></script>
     </body>
 </html>

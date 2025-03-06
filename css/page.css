@@ -109,8 +109,8 @@ h2 { font-size: 20px; }
 	background-color: var(--primaryColor);
 	display: none;
 	gap: .5em .5em;
-	grid-template-columns: repeat(auto-fill, 150px);
-	grid-template-rows: repeat(auto-fill, 150px);
+	grid-template-columns: repeat(auto-fill, 200px);
+	grid-template-rows: repeat(auto-fill, 200px);
 	justify-content: center;
 }
 
@@ -122,6 +122,8 @@ h2 { font-size: 20px; }
 	display: flex;
 	flex-direction: column;
 	text-align: center;
+	align-items: center;
+	justify-content: center;
 	color: var(--primaryFontColor);
 }
 
@@ -142,6 +144,12 @@ h2 { font-size: 20px; }
 	flex: auto;
 	width: 100%;
 	align-content: center;
+}
+
+#loadingImg {
+	width: 128px;
+	height: 128px;
+	flex: none;
 }
 
 #overlayContent {
@@ -185,12 +193,15 @@ h2 { font-size: 20px; }
 /* Start Search Form Controls */
 #searchFormContainer select { text-align: center; }
 
-#searchFormContainer img {
-	width: 30px;
-	height: 30px;
-	padding: 5px;
-	cursor: pointer;
+#submitBtn {
+	width: 40px;
+	height: 40px;
 	background-color: var(--primaryColor);
+	border: none;
+	margin-left: 1em;
+	background-image: url("../images/search.webp");
+	background-repeat: no-repeat;
+	background-size: 40px 40px;
 }
 /* End Search Form Controls */
 
@@ -218,8 +229,6 @@ h2 { font-size: 20px; }
 	height: 80px;
 	justify-content: end;
 }
-
-.img-container { margin: 0 0 0 1em; }
 
 .search-container {
 	flex: auto !important;
@@ -283,8 +292,6 @@ h2 { font-size: 20px; }
 
 	#searchContent {
 		gap: 1em 1em;
-		grid-template-columns: repeat(auto-fill, 200px);
-		grid-template-rows: repeat(auto-fill, 200px);
 	}
 
 	html, body {

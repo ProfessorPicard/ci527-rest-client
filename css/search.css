@@ -63,8 +63,8 @@
 }
 
 .searchResult img {
-	width: 150px;
-	height: 150px;
+	width: 200px;
+	height: 200px;
 	object-fit: cover;
 	grid-column-start: 1;
 	grid-column-end: 1;
@@ -130,10 +130,6 @@
 	.searchResult { cursor: pointer; }
 	.searchResult:hover { box-shadow: 0 0 0 5px var(--secondary-color);	}
 	.searchResult:hover .resultTitle { visibility: visible;	}
-	.searchResult img {
-		width: 200px;
-		height: 200px;
-	}
 	.searchResult:focus .resultTitle {
 		visibility: visible;
 	}
