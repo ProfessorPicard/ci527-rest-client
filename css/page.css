@@ -1,5 +1,6 @@
 /*
 	Main Page and Default Styling
+	Styling is mobile first so basically any device under 400px wide
 */
 
 /* Start Global Variables */
@@ -11,6 +12,7 @@
 	--primaryFontColor: #EEE;
 	--secondary-color: #304C89;
 	--highlight-color: #9eb7e5;
+	--minPageWidth: 320px;
 }
 /* End Global Variables */
 
@@ -54,7 +56,7 @@ h2 { font-size: 20px; }
 
 /* Start Structural Divs */
 #pageContainer {
-	min-width: 320px;
+	min-width: var(--minPageWidth);
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -109,8 +111,8 @@ h2 { font-size: 20px; }
 	background-color: var(--primaryColor);
 	display: none;
 	gap: .5em .5em;
-	grid-template-columns: repeat(auto-fill, 200px);
-	grid-template-rows: repeat(auto-fill, 200px);
+	grid-template-columns: minmax(300px, 90vw);
+	grid-template-rows: minmax(300px, 90vw);
 	justify-content: center;
 }
 
@@ -134,6 +136,7 @@ h2 { font-size: 20px; }
 	flex: none;
 	height: auto;
 	width: 100%;
+	margin-bottom: 20px;
 }
 
 #statusDescription {
@@ -249,7 +252,19 @@ h2 { font-size: 20px; }
 }
 /* End Generic Class Styles */
 
+/* Start Medium Screen Media Queries */
+/* Used for slightly larger devices such as tablets, big phones, small pc monitors */
+@media only screen and (min-width: 400px) and (max-width: 767px) {
+	#searchContent {
+		gap: 1em 1em;
+		grid-template-columns: repeat(auto-fill, 150px);
+		grid-template-rows: repeat(auto-fill, 150px);
+	}
+}
+/* End Medium Screen Media Queries */
+
 /* Start Large Screen Media Queries */
+/* Used for much larger devices like laptops, pc monitors, really big tablets */
 @media only screen and (min-width: 768px) {
 	#pageContainer {
 		min-width: 768px;
@@ -292,6 +307,8 @@ h2 { font-size: 20px; }
 
 	#searchContent {
 		gap: 1em 1em;
+		grid-template-columns: repeat(auto-fill, 200px);
+		grid-template-rows: repeat(auto-fill, 200px);
 	}
 
 	html, body {

@@ -1,5 +1,6 @@
 /*
 	Search Results Styling
+	Styling is mobile first so basically any device under 400px wide
 */
 
 #searchInfoContainer {
@@ -14,8 +15,9 @@
 
 /* Start Search Details Styling */
 #searchDetails {
-	width: 100%;
+	width: 98%;
 	flex: 1 1 auto;
+	padding: 0 1%;
 	color: var(--primaryFontColor);
 	text-align: center;
 }
@@ -63,8 +65,9 @@
 }
 
 .searchResult img {
-	width: 200px;
-	height: 200px;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 1;
 	object-fit: cover;
 	grid-column-start: 1;
 	grid-column-end: 1;
@@ -90,7 +93,18 @@
 }
 /* End Search Result Item Styling */
 
+/* Start Medium Screen Media Queries */
+/* Used for slightly larger devices such as tablets, big phones, small pc monitors */
+@media only screen and (min-width: 400px) and (max-width: 767px) {
+	.searchResult img {
+		width: 150px;
+		height: 150px;
+	}
+}
+/* End Medium Screen Media Queries */
+
 /* Start Large Screen Media Queries */
+/* Used for much larger devices like laptops, pc monitors, really big tablets */
 @media only screen and (min-width: 768px) {
 	#searchInfoContainer {
 		width: 100%;
@@ -132,6 +146,10 @@
 	.searchResult:hover .resultTitle { visibility: visible;	}
 	.searchResult:focus .resultTitle {
 		visibility: visible;
+	}
+	.searchResult img {
+		width: 200px;
+		height: 200px;
 	}
 }
 /* End Large Screen Media Queries */

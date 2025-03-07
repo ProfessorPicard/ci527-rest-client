@@ -1,6 +1,8 @@
-//Wrap all javascript in the window load event listener
-// to prevent any global values being hijacked by rogue code
-window.addEventListener("load", (event) => {
+/**
+ * Wrap all javascript in the window load event listener
+ * to increase code security and reduce the possibility of global values leaking
+ */
+window.addEventListener("load", () => {
 
     /**
      * All constant variables, mostly page elements that need to be accessed via javascript
@@ -39,7 +41,7 @@ window.addEventListener("load", (event) => {
     let _errorCode = 0;
 
     /**
-     * Performs a search request using a Query, Page Size and Page to create a url for the API search.
+     * Performs a search request using a Query, Page Size and Page to create a URL for the API search.
      * Usually used when performing a search from the search box.
      * @param query The query to be searched
      * @param pageSize The results to be displayed per page
@@ -66,19 +68,23 @@ window.addEventListener("load", (event) => {
     }
 
     /**
-     * Performs an async fetch request of the URL created from our search_url function.
+     * Performs a fetch request of the URL created from our search_url function and processes the result
      * @param requestUrl The url to get a fetch response from
-     * @returns {Promise<void>} The future result promise (not usually used, data is parsed separately)
      */
-    async function getResponse(requestUrl) {
+    function getResponse(requestUrl) {
 
-        showStatus("Loading", "Searching for '" + _searchQuery + "'", true);
+        showStatus("Searching for '" + _searchQuery + "'", "", true);
         enableSearch(false);
+
+        //Using innerHTML to clear content only
         _target.innerHTML = "";
 
-        //Create headers to be sent to the API server.
-        // Added this to try to force text compression on results to improve response times.
-        //It did not work, the API does not support text compression.
+        /**
+         * Create headers to be sent to the API server.
+         * Added this to try to force text compression on results to improve response times.
+         * Doesn't seem to work, the API does not support text compression,
+         * but left in just in case they support it overnight.
+         */
         const options = {
             method: 'GET',
             headers: {
@@ -86,37 +92,32 @@ window.addEventListener("load", (event) => {
             }
         };
 
-        //Fetch function that gets the response from the API and processes the result accordingly.
+        // Fetch function that gets the response from the API and processes the result accordingly.
         fetch(requestUrl, options)
             .then(response => {
                 _errorCode = response.status;
-                switch (response.status) {
-                    //If the response is good, check we have valid json and return it if so
+                switch (_errorCode) {
+                    /**
+                     * If the response code is either 200 or 400, return our json promise
+                     * 400 Status codes from the API return a reason in JSON to display to the user
+                     */
                     case 200:
-                        const contentType = response.headers.get('content-type');
-                        if (contentType && contentType.includes('application/json')) {
-                            return response.json();
-                        } else {
-                            showStatus('Error', 'Response is not JSON', false);
-                            break;
-                        }
-                    // If the result is 400 return the response json even if there is none.
-                    // This is so I can display the cause of the 400 response,
-                    // mainly because the API only allows results upto 10000 to be retrieved,
-                    // and I want to notify the user of this.
                     case 400:
                         return response.json();
+                    case 403:
+                        showStatus('Error ' + _errorCode, 'NASA CORS Error, happens after too many requests (Hidden rate limit?)', false);
+                        break;
                     case 404:
-                        showStatus('Error 404', 'The requested resource does not exist', false);
+                        showStatus('Error ' + _errorCode, 'The requested resource does not exist', false);
                         break;
                     case 500:
                     case 502:
                     case 503:
                     case 504:
-                        showStatus('Error 500', 'Internal server error', false);
+                        showStatus('Error ' + _errorCode, 'Internal server error', false);
                         break;
                 }
-                //Enable the search again, so you aren't stuck on an error page with no way to search
+                // Enable the search again, so you aren't stuck on an error page with no way to search
                 enableSearch(true);
             }).then(json => {
 
@@ -127,7 +128,10 @@ window.addEventListener("load", (event) => {
             if(_errorCode === 400)
                 displayBadRequestReason(json);
 
-        }).catch(console.error);
+        }).catch(() => {
+            showStatus("Error", "Something has gone terribly wrong. Please refresh the page and try again.", false);
+            enableSearch(true);
+        });
     }
 
     /**
@@ -149,8 +153,8 @@ window.addEventListener("load", (event) => {
      * @param json The json response returned along with a valid 200 status code
      */
     function parseJson(json) {
-        let collection = json.collection;
-        let results = Math.min(collection.metadata.total_hits, 10000);
+        let collection = json["collection"];
+        let results = Math.min(collection.metadata["total_hits"], 10000);
         let items = collection.items;
         let links = collection.links;
         let nextUrl = "";
@@ -163,8 +167,10 @@ window.addEventListener("load", (event) => {
             return;
         }
 
-        //Retrieves any pre generated next and previous page urls sent by the API
-        //Also replaces any http urls with https for added security
+        /**
+         * Retrieves any pre generated next and previous page urls sent by the API
+         * Also replaces any http urls with https for added security
+         */
         if (links != null) {
             for (let i = 0; i < links.length; i++) {
                 let link = links[i];
@@ -187,10 +193,10 @@ window.addEventListener("load", (event) => {
             let data = item.data[0];
             let title = (data !== undefined) ? data.title : "Title goes here";
             let description = (data !== undefined) ? data.description : "Description goes here";
-            let center = (data !== undefined) ? data.center : "NASA Center goes here";
-            let created = (data !== undefined) ? new Date(data.date_created).toLocaleDateString() : "Date goes here";
-            let keywords = (data !== undefined) ? data.keywords : "Keywords go here";
-            let mediaType = (data !== undefined) ? data.media_type : "Media type goes here";
+            let center = (data !== undefined) ? data["center"] : "NASA Center goes here";
+            let created = (data !== undefined) ? new Date(data["date_created"]).toLocaleDateString() : "Date goes here";
+            let keywords = (data !== undefined) ? data["keywords"] : "Keywords go here";
+            let mediaType = (data !== undefined) ? data["media_type"] : "Media type goes here";
             let thumbSrc = "";
             let thumbWidth = 200;
             let thumbHeight = 200;
@@ -226,12 +232,14 @@ window.addEventListener("load", (event) => {
             resultCont.tabIndex = 0;
 
             //add mouse on click handler to the result to open metadata
-            resultCont.addEventListener("keypress", function(event) {
+            resultCont.addEventListener("click", function() {
                 updateMeta();
             });
 
-            //add keyboard keypress handler to the result to open metadata when enter is pressed.
-            //Mainly useful for accessibility features such as tabbing through results and using screen readers
+            /**
+             * Add keyboard keypress handler to the result to open metadata when enter is pressed.
+             * Mainly useful for accessibility features such as tabbing through results and using screen readers
+             */
             resultCont.addEventListener("keypress", function(event) {
                 if (event.key === "Enter") {
                     event.preventDefault();
@@ -259,7 +267,9 @@ window.addEventListener("load", (event) => {
 
                 metaImgTmp.className = "metaImg";
 
+                //Using innerHTML to clear content only
                 _metaImgCont.innerHTML = "";
+
                 _metaImgCont.appendChild(metaImgTmp);
 
                 _metaDescription.textContent = description;
@@ -272,8 +282,10 @@ window.addEventListener("load", (event) => {
             titleEle.textContent = title;
             titleEle.className = "resultTitle";
 
-            //Gets the smallest image possible starting with thumbnails and working upwards.
-            //Fixes errors when the result didn't contain a thumbnail and only a larger image
+            /**
+             * Gets the smallest image possible starting with thumbnails and working upwards.
+             * Fixes errors when the result didn't contain a thumbnail and only a larger image
+             */
             if(thumbSrc !== "")
                 thumbEle.src = thumbSrc;
             else if(mediumSrc !== "")
@@ -283,16 +295,20 @@ window.addEventListener("load", (event) => {
             else if(origSrc !== "")
                 thumbEle.src = origSrc;
 
-            //If the current index of the result is higher than 10, lazy load the images.
-            //This enables the first 10 images to be loaded faster as lazy loading happens later on in the dom cycle.
-            //This improved the lighthouse score for Largest Contentful Paint from 4s to 0.4s
-            if(i > 10)
+            /**
+             * If the current index of the result is higher than 5, lazy load the images.
+             * This enables the first 5 images to be loaded faster as lazy loading happens later on in the dom cycle.
+             * This improved the lighthouse score for Largest Contentful Paint from 5s to 1.4s
+             */
+            if(i > 5)
                 thumbEle.loading = "lazy";
 
             thumbEle.width = thumbWidth;
             thumbEle.height = thumbHeight;
+
             //Add alt text for screen readers to know what item they are on
             thumbEle.alt = "Retrieved image " + (i + 1) + " of " + items.length;
+
             resultCont.appendChild(thumbEle);
             resultCont.appendChild(titleEle);
             _target.appendChild(resultCont);
@@ -303,19 +319,23 @@ window.addEventListener("load", (event) => {
         let startResult = ((_currPage - 1) * _pageSize) + 1;
         let endResult = Math.min(results, _currPage * _pageSize);
 
-        //Fixes bug where you could page to results higher than 10000.
-        //Clears the provided next page URL if you are on the last page of results.
-        //The API still provides a URL for the next results but won't action it.
-        if(_currPage == pages)
+        /**
+         * Fixes bug where you could page to results higher than 10000.
+         * Clears the provided next page URL if you are on the last page of results.
+         * The API still provides a URL for the next results but won't action it.
+         */
+        if(_currPage === pages)
             nextUrl = "";
 
         //add mouse on click handler to the close metadata button to close metadata
-        _metaClose.addEventListener("keypress", function (event) {
+        _metaClose.addEventListener("click", function () {
             closeMeta();
         });
 
-        //add keyboard keypress handler to the close metadata button to close metadata when enter is pressed.
-        //Mainly useful for accessibility features such as tabbing through results and using screen readers
+        /**
+         * Add keyboard keypress handler to the close metadata button to close metadata when enter is pressed.
+         * Mainly useful for accessibility features such as tabbing through results and using screen readers
+         */
         _metaClose.addEventListener("keypress", function (event){
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -325,7 +345,8 @@ window.addEventListener("load", (event) => {
 
         //closes the metadata "screen" and resets all the fields to blank ready for the next result
         function closeMeta() {
-            //Using innerHTML to clear content as I am in control of the content here
+
+            //Using innerHTML to clear content only
             _metaImgCont.innerHTML = "";
             _metaTitle.innerHTML = "";
 
@@ -337,8 +358,10 @@ window.addEventListener("load", (event) => {
             showTarget();
         }
 
-        //Adds all the page data and result data to the search info bar
+        //Using innerHTML to clear content only
         _searchInfoEle.innerHTML = "";
+
+        //Adds all the page data and result data to the search info bar
         let searchTermSpan = document.createElement("span");
         searchTermSpan.textContent = _searchQuery;
         searchTermSpan.className = "searchTerm";
@@ -347,12 +370,14 @@ window.addEventListener("load", (event) => {
         _pageInfo.textContent = "Page " + _currPage + " of " + pages;
 
         //add mouse on click handler to the next button to goto the next page of results
-        _nextEle.addEventListener("keypress", function(event) {
+        _nextEle.addEventListener("click", function() {
             search_url(nextUrl);
         });
 
-        //add keyboard keypress handler to the next button to goto the next page of results when enter is pressed.
-        //Mainly useful for accessibility features such as tabbing through results and using screen readers
+        /**
+         * Add keyboard keypress handler to the next button to goto the next page of results when enter is pressed.
+         * Mainly useful for accessibility features such as tabbing through results and using screen readers
+         */
         _nextEle.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -365,8 +390,11 @@ window.addEventListener("load", (event) => {
             event.preventDefault();
             search_url(prevUrl);
         });
-        //add keyboard keypress handler to the previous button to goto the previous page of results when enter is pressed.
-        //Mainly useful for accessibility features such as tabbing through results and using screen readers
+
+        /**
+         * Add keyboard keypress handler to the previous button to goto the previous page of results when enter is pressed.
+         * Mainly useful for accessibility features such as tabbing through results and using screen readers
+         */
         _prevEle.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -399,7 +427,7 @@ window.addEventListener("load", (event) => {
      * Shows the status div and hides any other divs. Displays a title and message to the user.
      * @param statusTitle Title of the status message
      * @param statusDescription Message text to be displayed
-     * @param showLoading Boolean value dictating whether loading image is shown
+     * @param showLoading Boolean value dictating whether loading image is shown. If image is shown, description is hidden.
      */
     function showStatus(statusTitle, statusDescription, showLoading) {
         _statusImg.style.display = (showLoading) ? "inline-block" : "none";
@@ -410,6 +438,7 @@ window.addEventListener("load", (event) => {
         _returnTopEle.style.display = "none";
         _statusTitle.textContent = statusTitle;
         _statusDescription.textContent = statusDescription;
+        _statusDescription.style.display = (showLoading) ? "none" : "block";
     }
 
     /**
@@ -461,7 +490,7 @@ window.addEventListener("load", (event) => {
      */
     function getUrlParameters(queryString) {
         let params = new URLSearchParams(queryString);
-        _currPage = params.get("page");
+        _currPage = parseInt(params.get("page"));
         _searchQuery = params.get("q");
         _pageSize = params.get("page_size");
     }
@@ -496,6 +525,8 @@ window.addEventListener("load", (event) => {
 
     /**
      * Gets url parameters and performs a search using those parameters when the page is loaded.
+     * Enables a search to be performed from a URL either entered manually or from a link elsewhere.
+     * This URL can then be re-written using htaccess rewrites to further improve SEO and UX.
      */
     getUrlParameters(window.location.search);
     if(_searchQuery != null) {
