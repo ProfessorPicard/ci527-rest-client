@@ -153,6 +153,7 @@ h2 { font-size: 20px; }
 	width: 128px;
 	height: 128px;
 	flex: none;
+	display: none;
 }
 
 #overlayContent {
